@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { LogOut, Trash2 } from "lucide-react";
+import { LogOut, Trash2, Sun, Moon, Monitor } from "lucide-react";
 import { useState } from "react";
+import { useSmartHome, type Theme } from "@/lib/smart-home-store";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [{ title: "Settings — Nestly" }, { name: "description", content: "Manage your profile, home and preferences." }] }),
@@ -61,6 +63,10 @@ function SettingsPage() {
         </div>
 
         <div className="space-y-4">
+          <Section title="Appearance" description="Choose how Nestly looks to you">
+            <ThemePicker />
+          </Section>
+
           <Section title="Away mode" description="Simulate presence, tighten security">
             <ToggleRow label="Enable away mode" description="Turns off non-essential devices" value={awayMode} onChange={setAwayMode} />
           </Section>
