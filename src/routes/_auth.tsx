@@ -1,5 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ReactNode } from "react";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Home } from "lucide-react";
 
 export const Route = createFileRoute("/_auth")({
@@ -7,16 +6,6 @@ export const Route = createFileRoute("/_auth")({
 });
 
 function AuthLayout() {
-  return (
-    <AuthShell>
-      <Outlet />
-    </AuthShell>
-  );
-}
-
-import { Outlet } from "@tanstack/react-router";
-
-export function AuthShell({ children }: { children: ReactNode }) {
   return (
     <div className="grid min-h-screen bg-muted/40 lg:grid-cols-2">
       <div className="hidden flex-col justify-between bg-primary p-12 text-primary-foreground lg:flex">
@@ -35,7 +24,9 @@ export function AuthShell({ children }: { children: ReactNode }) {
         <div className="text-xs text-primary-foreground/60">© 2026 Nestly</div>
       </div>
       <div className="flex items-center justify-center p-6 sm:p-10">
-        <div className="w-full max-w-md">{children}</div>
+        <div className="w-full max-w-md">
+          <Outlet />
+        </div>
       </div>
     </div>
   );
