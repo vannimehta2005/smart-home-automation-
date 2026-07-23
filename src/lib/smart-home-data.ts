@@ -61,7 +61,7 @@ export const devices: Device[] = [
   { id: "d14", name: "Front Door Camera", category: "Security", company: "Ring", model: "Doorbell Pro 2", room: "Garage", power: 6, status: "on", icon: Camera },
   { id: "d15", name: "Office Desk Light", category: "Lighting", company: "IKEA", model: "Tradfri", room: "Home Office", power: 8, status: "on", icon: Lightbulb },
   { id: "d16", name: "Office Smart Plug", category: "Utility", company: "Wemo", model: "Mini", room: "Home Office", power: 2, status: "on", icon: Plug },
-  { id: "d17", name: "Garage Door", category: "Security", company: "Chamberlain", model: "MyQ", model2: "", room: "Garage", power: 250, status: "off", icon: DoorOpen } as any,
+  { id: "d17", name: "Garage Door", category: "Security", company: "Chamberlain", model: "MyQ", room: "Garage", power: 250, status: "off", icon: DoorOpen },
 ];
 
 export interface Routine {
