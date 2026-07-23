@@ -3,7 +3,9 @@ import { AppLayout } from "@/components/app-layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowRight } from "lucide-react";
-import { rooms, devices } from "@/lib/smart-home-data";
+import { useSmartHome } from "@/lib/smart-home-store";
+import { AddRoomDialog } from "@/components/add-room-dialog";
+import { useState } from "react";
 
 export const Route = createFileRoute("/rooms")({
   head: () => ({ meta: [{ title: "Rooms — Nestly" }, { name: "description", content: "Browse and control devices grouped by room." }] }),
@@ -11,11 +13,13 @@ export const Route = createFileRoute("/rooms")({
 });
 
 function RoomsPage() {
+  const { rooms, devices } = useSmartHome();
+  const [open, setOpen] = useState(false);
   return (
     <AppLayout
       title="Rooms"
       subtitle="Organize and control devices grouped by room"
-      actions={<Button className="gap-2"><Plus className="h-4 w-4" /> Add Room</Button>}
+      actions={<Button className="gap-2" onClick={() => setOpen(true)}><Plus className="h-4 w-4" /> Add Room</Button>}
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {rooms.map((room) => {
@@ -43,6 +47,7 @@ function RoomsPage() {
           );
         })}
       </div>
+      <AddRoomDialog open={open} onOpenChange={setOpen} />
     </AppLayout>
   );
 }
