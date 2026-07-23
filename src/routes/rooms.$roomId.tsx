@@ -4,26 +4,22 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft } from "lucide-react";
-import { rooms, devices } from "@/lib/smart-home-data";
-import { useState } from "react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
+import { useSmartHome } from "@/lib/smart-home-store";
+import type { Device } from "@/lib/smart-home-data";
 
 export const Route = createFileRoute("/rooms/$roomId")({
   head: ({ params }) => {
-    const room = rooms.find((r) => r.id === params.roomId);
-    const title = room ? `${room.name} — Nestly` : "Room — Nestly";
-    return { meta: [{ title }, { name: "description", content: `Devices in ${room?.name ?? "your home"}.` }] };
-  },
-  loader: ({ params }) => {
-    const room = rooms.find((r) => r.id === params.roomId);
-    if (!room) throw notFound();
-    return { room };
+    return { meta: [{ title: `Room — Nestly` }, { name: "description", content: `Devices in room ${params.roomId}.` }] };
   },
   component: RoomDetail,
 });
 
 function RoomDetail() {
-  const { room } = Route.useLoaderData();
+  const { roomId } = Route.useParams();
+  const { rooms, devices, toggleDevice } = useSmartHome();
+  const room = rooms.find((r) => r.id === roomId);
+  if (!room) throw notFound();
   const roomDevices = devices.filter((d) => d.room === room.name);
 
   return (
@@ -36,17 +32,36 @@ function RoomDetail() {
         </Link>
       }
     >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {roomDevices.map((d) => (
-          <RoomDeviceCard key={d.id} device={d} />
-        ))}
+      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground">
+        <Link to="/dashboard" className="hover:text-foreground">Dashboard</Link>
+        <ChevronRight className="h-3.5 w-3.5" />
+        <Link to="/rooms" className="hover:text-foreground">Rooms</Link>
+        <ChevronRight className="h-3.5 w-3.5" />
+        <span className="text-foreground">{room.name}</span>
+      </nav>
+
+      <div className="mb-4 flex items-center gap-3">
+        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-muted text-2xl">{room.icon}</div>
+        <div>
+          <div className="text-base font-semibold">{room.name}</div>
+          <div className="text-xs text-muted-foreground">{roomDevices.filter(d => d.status === "on").length} active · {roomDevices.length} total</div>
+        </div>
       </div>
+
+      {roomDevices.length === 0 ? (
+        <Card className="p-10 text-center text-sm text-muted-foreground">No devices in this room yet.</Card>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {roomDevices.map((d) => (
+            <RoomDeviceCard key={d.id} device={d} on={d.status === "on"} onToggle={(v) => toggleDevice(d.id, v)} />
+          ))}
+        </div>
+      )}
     </AppLayout>
   );
 }
 
-function RoomDeviceCard({ device }: { device: (typeof devices)[number] }) {
-  const [on, setOn] = useState(device.status === "on");
+function RoomDeviceCard({ device, on, onToggle }: { device: Device; on: boolean; onToggle: (v: boolean) => void }) {
   const Icon = device.icon;
   return (
     <Card className="p-5">
@@ -54,7 +69,7 @@ function RoomDeviceCard({ device }: { device: (typeof devices)[number] }) {
         <div className={`grid h-11 w-11 place-items-center rounded-xl ${on ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
           <Icon className="h-5 w-5" />
         </div>
-        <Switch checked={on} onCheckedChange={setOn} />
+        <Switch checked={on} onCheckedChange={onToggle} />
       </div>
       <div className="mt-4 text-base font-semibold">{device.name}</div>
       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

@@ -12,7 +12,9 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Plus, Search, MoreVertical, Pencil, Trash2, Settings2 } from "lucide-react";
-import { devices, rooms } from "@/lib/smart-home-data";
+import { useSmartHome } from "@/lib/smart-home-store";
+import { AddDeviceDialog } from "@/components/add-device-dialog";
+import type { Device } from "@/lib/smart-home-data";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/devices")({
@@ -21,14 +23,20 @@ export const Route = createFileRoute("/devices")({
 });
 
 const categories = ["All", "Lighting", "Climate", "Security", "Appliance", "Entertainment", "Utility"];
-const companies = ["All", ...Array.from(new Set(devices.map((d) => d.company)))];
 
 function DevicesPage() {
+  const { devices, rooms, toggleDevice } = useSmartHome();
   const [query, setQuery] = useState("");
   const [room, setRoom] = useState("All");
   const [cat, setCat] = useState("All");
   const [comp, setComp] = useState("All");
   const [sort, setSort] = useState("name");
+  const [addOpen, setAddOpen] = useState(false);
+
+  const companies = useMemo(
+    () => ["All", ...Array.from(new Set(devices.map((d) => d.company)))],
+    [devices],
+  );
 
   const filtered = useMemo(() => {
     let list = devices.filter((d) => {
@@ -44,13 +52,13 @@ function DevicesPage() {
       return a.name.localeCompare(b.name);
     });
     return list;
-  }, [query, room, cat, comp, sort]);
+  }, [devices, query, room, cat, comp, sort]);
 
   return (
     <AppLayout
       title="Devices"
       subtitle={`${devices.length} devices across ${rooms.length} rooms`}
-      actions={<Button className="gap-2"><Plus className="h-4 w-4" /> Add Device</Button>}
+      actions={<Button className="gap-2" onClick={() => setAddOpen(true)}><Plus className="h-4 w-4" /> Add Device</Button>}
     >
       <Card className="p-4">
         <div className="flex flex-wrap items-center gap-3">
@@ -67,12 +75,13 @@ function DevicesPage() {
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filtered.map((d) => (
-          <DeviceCard key={d.id} device={d} />
+          <DeviceCard key={d.id} device={d} on={d.status === "on"} onToggle={(v) => toggleDevice(d.id, v)} />
         ))}
       </div>
       {filtered.length === 0 && (
         <Card className="mt-4 p-10 text-center text-sm text-muted-foreground">No devices match your filters.</Card>
       )}
+      <AddDeviceDialog open={addOpen} onOpenChange={setAddOpen} />
     </AppLayout>
   );
 }
@@ -94,8 +103,7 @@ function FilterSelect({ value, onChange, label, options }: { value: string; onCh
   );
 }
 
-function DeviceCard({ device }: { device: (typeof devices)[number] }) {
-  const [on, setOn] = useState(device.status === "on");
+function DeviceCard({ device, on, onToggle }: { device: Device; on: boolean; onToggle: (v: boolean) => void }) {
   const Icon = device.icon;
   return (
     <Card className="p-5">
@@ -104,7 +112,7 @@ function DeviceCard({ device }: { device: (typeof devices)[number] }) {
           <Icon className="h-5 w-5" />
         </div>
         <div className="flex items-center gap-1">
-          <Switch checked={on} onCheckedChange={setOn} />
+          <Switch checked={on} onCheckedChange={onToggle} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /></Button>

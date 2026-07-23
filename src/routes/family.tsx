@@ -8,7 +8,9 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, UserPlus, Shield, User, UserRound } from "lucide-react";
-import { family } from "@/lib/smart-home-data";
+import { useSmartHome } from "@/lib/smart-home-store";
+import { InviteMemberDialog } from "@/components/invite-member-dialog";
+import { useState } from "react";
 
 export const Route = createFileRoute("/family")({
   head: () => ({ meta: [{ title: "Family — Nestly" }, { name: "description", content: "Manage members and their access to your home." }] }),
@@ -22,11 +24,13 @@ const roleStyles: Record<string, string> = {
 };
 
 function FamilyPage() {
+  const { family } = useSmartHome();
+  const [open, setOpen] = useState(false);
   return (
     <AppLayout
       title="Family"
       subtitle="Manage who has access to your smart home"
-      actions={<Button className="gap-2"><UserPlus className="h-4 w-4" /> Invite Member</Button>}
+      actions={<Button className="gap-2" onClick={() => setOpen(true)}><UserPlus className="h-4 w-4" /> Invite Member</Button>}
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {family.map((m) => {
@@ -39,7 +43,10 @@ function FamilyPage() {
                     <AvatarFallback className="bg-primary/10 font-semibold text-primary">{m.initials}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <div className="truncate text-base font-semibold">{m.name}</div>
+                    <div className="flex items-center gap-2">
+                      <div className="truncate text-base font-semibold">{m.name}</div>
+                      {m.pending && <Badge variant="outline" className="rounded-full text-[10px] font-medium">Pending</Badge>}
+                    </div>
                     <div className="truncate text-xs text-muted-foreground">{m.email}</div>
                   </div>
                 </div>
@@ -58,12 +65,13 @@ function FamilyPage() {
                 <Badge variant="secondary" className={`${roleStyles[m.role]} gap-1.5`}>
                   <Icon className="h-3 w-3" /> {m.role}
                 </Badge>
-                <span className="text-xs text-muted-foreground">Active now</span>
+                <span className="text-xs text-muted-foreground">{m.pending ? "Invitation sent" : "Active now"}</span>
               </div>
             </Card>
           );
         })}
       </div>
+      <InviteMemberDialog open={open} onOpenChange={setOpen} />
     </AppLayout>
   );
 }
