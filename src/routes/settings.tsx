@@ -122,3 +122,34 @@ function ToggleRow({ label, description, value, onChange }: { label: string; des
     </div>
   );
 }
+
+function ThemePicker() {
+  const { theme, setTheme } = useSmartHome();
+  const options: { value: Theme; label: string; icon: typeof Sun }[] = [
+    { value: "light", label: "Light", icon: Sun },
+    { value: "dark", label: "Dark", icon: Moon },
+    { value: "system", label: "System", icon: Monitor },
+  ];
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      {options.map((o) => {
+        const Icon = o.icon;
+        const active = theme === o.value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            onClick={() => setTheme(o.value)}
+            className={cn(
+              "flex flex-col items-center gap-2 rounded-lg border p-3 text-sm font-medium transition-colors",
+              active ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-muted",
+            )}
+          >
+            <Icon className="h-5 w-5" />
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
