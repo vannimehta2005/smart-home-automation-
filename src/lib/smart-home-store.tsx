@@ -24,6 +24,8 @@ type Ctx = {
   devices: Device[];
   family: FamilyMember[];
   addRoom: (r: Omit<Room, "id">) => void;
+  updateRoom: (id: string, patch: Partial<Omit<Room, "id">>) => void;
+  deleteRoom: (id: string) => void;
   addDevice: (d: {
     name: string;
     category: Device["category"];
