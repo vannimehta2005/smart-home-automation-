@@ -11,13 +11,13 @@ import type { DeviceCategory } from "@/lib/smart-home-data";
 
 const CATEGORIES: DeviceCategory[] = ["Lighting", "Climate", "Security", "Appliance", "Entertainment", "Utility"];
 
-export function AddDeviceDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+export function AddDeviceDialog({ open, onOpenChange, defaultRoom }: { open: boolean; onOpenChange: (v: boolean) => void; defaultRoom?: string }) {
   const { rooms, addDevice } = useSmartHome();
   const [name, setName] = useState("");
   const [category, setCategory] = useState<DeviceCategory>("Lighting");
   const [company, setCompany] = useState("");
   const [model, setModel] = useState("");
-  const [room, setRoom] = useState(rooms[0]?.name ?? "");
+  const [room, setRoom] = useState(defaultRoom ?? rooms[0]?.name ?? "");
   const [power, setPower] = useState("10");
   const [highPower, setHighPower] = useState(false);
   const [statusOn, setStatusOn] = useState(true);

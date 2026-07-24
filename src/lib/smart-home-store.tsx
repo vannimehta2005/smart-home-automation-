@@ -24,6 +24,8 @@ type Ctx = {
   devices: Device[];
   family: FamilyMember[];
   addRoom: (r: Omit<Room, "id">) => void;
+  updateRoom: (id: string, patch: Partial<Omit<Room, "id">>) => void;
+  deleteRoom: (id: string) => void;
   addDevice: (d: {
     name: string;
     category: Device["category"];
@@ -89,6 +91,15 @@ export function SmartHomeProvider({ children }: { children: ReactNode }) {
           ...prev,
           { id: `room-${Date.now()}`, ...r },
         ]),
+      updateRoom: (id, patch) =>
+        setRooms((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r))),
+      deleteRoom: (id) => {
+        setRooms((prev) => {
+          const target = prev.find((r) => r.id === id);
+          if (target) setDevices((ds) => ds.filter((d) => d.room !== target.name));
+          return prev.filter((r) => r.id !== id);
+        });
+      },
       addDevice: (d) =>
         setDevices((prev) => [
           ...prev,
