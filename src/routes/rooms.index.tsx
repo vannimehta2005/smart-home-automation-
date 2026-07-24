@@ -7,7 +7,7 @@ import { useSmartHome } from "@/lib/smart-home-store";
 import { AddRoomDialog } from "@/components/add-room-dialog";
 import { useState } from "react";
 
-export const Route = createFileRoute("/rooms")({
+export const Route = createFileRoute("/rooms/")({
   head: () => ({ meta: [{ title: "Rooms — Nestly" }, { name: "description", content: "Browse and control devices grouped by room." }] }),
   component: RoomsPage,
 });

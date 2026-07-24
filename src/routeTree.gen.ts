@@ -12,13 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as RoutinesRouteImport } from './routes/routines'
-import { Route as RoomsRouteImport } from './routes/rooms'
 import { Route as FamilyRouteImport } from './routes/family'
 import { Route as EnergyRouteImport } from './routes/energy'
 import { Route as DevicesRouteImport } from './routes/devices'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RoomsIndexRouteImport } from './routes/rooms.index'
 import { Route as RoomsRoomIdRouteImport } from './routes/rooms.$roomId'
 import { Route as AuthWaitingApprovalRouteImport } from './routes/_auth.waiting-approval'
 import { Route as AuthRegisterRouteImport } from './routes/_auth.register'
@@ -39,11 +39,6 @@ const SecurityRoute = SecurityRouteImport.update({
 const RoutinesRoute = RoutinesRouteImport.update({
   id: '/routines',
   path: '/routines',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RoomsRoute = RoomsRouteImport.update({
-  id: '/rooms',
-  path: '/rooms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FamilyRoute = FamilyRouteImport.update({
@@ -75,10 +70,15 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RoomsIndexRoute = RoomsIndexRouteImport.update({
+  id: '/rooms/',
+  path: '/rooms/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RoomsRoomIdRoute = RoomsRoomIdRouteImport.update({
-  id: '/$roomId',
-  path: '/$roomId',
-  getParentRoute: () => RoomsRoute,
+  id: '/rooms/$roomId',
+  path: '/rooms/$roomId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthWaitingApprovalRoute = AuthWaitingApprovalRouteImport.update({
   id: '/waiting-approval',
@@ -112,7 +112,6 @@ export interface FileRoutesByFullPath {
   '/devices': typeof DevicesRoute
   '/energy': typeof EnergyRoute
   '/family': typeof FamilyRoute
-  '/rooms': typeof RoomsRouteWithChildren
   '/routines': typeof RoutinesRoute
   '/security': typeof SecurityRoute
   '/settings': typeof SettingsRoute
@@ -122,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof AuthRegisterRoute
   '/waiting-approval': typeof AuthWaitingApprovalRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/rooms/': typeof RoomsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -129,7 +129,6 @@ export interface FileRoutesByTo {
   '/devices': typeof DevicesRoute
   '/energy': typeof EnergyRoute
   '/family': typeof FamilyRoute
-  '/rooms': typeof RoomsRouteWithChildren
   '/routines': typeof RoutinesRoute
   '/security': typeof SecurityRoute
   '/settings': typeof SettingsRoute
@@ -139,6 +138,7 @@ export interface FileRoutesByTo {
   '/register': typeof AuthRegisterRoute
   '/waiting-approval': typeof AuthWaitingApprovalRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/rooms': typeof RoomsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -148,7 +148,6 @@ export interface FileRoutesById {
   '/devices': typeof DevicesRoute
   '/energy': typeof EnergyRoute
   '/family': typeof FamilyRoute
-  '/rooms': typeof RoomsRouteWithChildren
   '/routines': typeof RoutinesRoute
   '/security': typeof SecurityRoute
   '/settings': typeof SettingsRoute
@@ -158,6 +157,7 @@ export interface FileRoutesById {
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/waiting-approval': typeof AuthWaitingApprovalRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/rooms/': typeof RoomsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -167,7 +167,6 @@ export interface FileRouteTypes {
     | '/devices'
     | '/energy'
     | '/family'
-    | '/rooms'
     | '/routines'
     | '/security'
     | '/settings'
@@ -177,6 +176,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/waiting-approval'
     | '/rooms/$roomId'
+    | '/rooms/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -184,7 +184,6 @@ export interface FileRouteTypes {
     | '/devices'
     | '/energy'
     | '/family'
-    | '/rooms'
     | '/routines'
     | '/security'
     | '/settings'
@@ -194,6 +193,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/waiting-approval'
     | '/rooms/$roomId'
+    | '/rooms'
   id:
     | '__root__'
     | '/'
@@ -202,7 +202,6 @@ export interface FileRouteTypes {
     | '/devices'
     | '/energy'
     | '/family'
-    | '/rooms'
     | '/routines'
     | '/security'
     | '/settings'
@@ -212,6 +211,7 @@ export interface FileRouteTypes {
     | '/_auth/register'
     | '/_auth/waiting-approval'
     | '/rooms/$roomId'
+    | '/rooms/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -221,10 +221,11 @@ export interface RootRouteChildren {
   DevicesRoute: typeof DevicesRoute
   EnergyRoute: typeof EnergyRoute
   FamilyRoute: typeof FamilyRoute
-  RoomsRoute: typeof RoomsRouteWithChildren
   RoutinesRoute: typeof RoutinesRoute
   SecurityRoute: typeof SecurityRoute
   SettingsRoute: typeof SettingsRoute
+  RoomsRoomIdRoute: typeof RoomsRoomIdRoute
+  RoomsIndexRoute: typeof RoomsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -248,13 +249,6 @@ declare module '@tanstack/react-router' {
       path: '/routines'
       fullPath: '/routines'
       preLoaderRoute: typeof RoutinesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rooms': {
-      id: '/rooms'
-      path: '/rooms'
-      fullPath: '/rooms'
-      preLoaderRoute: typeof RoomsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/family': {
@@ -299,12 +293,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rooms/': {
+      id: '/rooms/'
+      path: '/rooms'
+      fullPath: '/rooms/'
+      preLoaderRoute: typeof RoomsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rooms/$roomId': {
       id: '/rooms/$roomId'
-      path: '/$roomId'
+      path: '/rooms/$roomId'
       fullPath: '/rooms/$roomId'
       preLoaderRoute: typeof RoomsRoomIdRouteImport
-      parentRoute: typeof RoomsRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_auth/waiting-approval': {
       id: '/_auth/waiting-approval'
@@ -362,16 +363,6 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
-interface RoomsRouteChildren {
-  RoomsRoomIdRoute: typeof RoomsRoomIdRoute
-}
-
-const RoomsRouteChildren: RoomsRouteChildren = {
-  RoomsRoomIdRoute: RoomsRoomIdRoute,
-}
-
-const RoomsRouteWithChildren = RoomsRoute._addFileChildren(RoomsRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
@@ -379,10 +370,11 @@ const rootRouteChildren: RootRouteChildren = {
   DevicesRoute: DevicesRoute,
   EnergyRoute: EnergyRoute,
   FamilyRoute: FamilyRoute,
-  RoomsRoute: RoomsRouteWithChildren,
   RoutinesRoute: RoutinesRoute,
   SecurityRoute: SecurityRoute,
   SettingsRoute: SettingsRoute,
+  RoomsRoomIdRoute: RoomsRoomIdRoute,
+  RoomsIndexRoute: RoomsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
