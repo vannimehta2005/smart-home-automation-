@@ -31,13 +31,16 @@ export const Route = createFileRoute("/devices")({
 const categories = ["All", "Lighting", "Climate", "Security", "Appliance", "Entertainment", "Utility"];
 
 function DevicesPage() {
-  const { devices, rooms, toggleDevice } = useSmartHome();
+  const { devices, rooms, toggleDevice, deleteDevice } = useSmartHome();
   const [query, setQuery] = useState("");
   const [room, setRoom] = useState("All");
   const [cat, setCat] = useState("All");
   const [comp, setComp] = useState("All");
   const [sort, setSort] = useState("name");
   const [addOpen, setAddOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editDevice, setEditDevice] = useState<Device | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Device | null>(null);
 
   const companies = useMemo(
     () => ["All", ...Array.from(new Set(devices.map((d) => d.company)))],
