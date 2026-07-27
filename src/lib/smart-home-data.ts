@@ -33,6 +33,7 @@ export interface Device {
   status: "on" | "off";
   icon: LucideIcon;
   favorite?: boolean;
+  highPower?: boolean;
 }
 
 export const rooms = [

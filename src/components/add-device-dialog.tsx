@@ -35,6 +35,7 @@ export function AddDeviceDialog({ open, onOpenChange, defaultRoom }: { open: boo
       model: model.trim(),
       room,
       power: watts,
+      highPower,
       status: statusOn ? "on" : "off",
     });
     toast.success(`${name} added to ${room}`);

@@ -11,9 +11,15 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, Search, MoreVertical, Pencil, Trash2, Settings2 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Plus, Search, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useSmartHome } from "@/lib/smart-home-store";
 import { AddDeviceDialog } from "@/components/add-device-dialog";
+import { EditDeviceDialog } from "@/components/edit-device-dialog";
+import { toast } from "sonner";
 import type { Device } from "@/lib/smart-home-data";
 import { useMemo, useState } from "react";
 
@@ -25,13 +31,16 @@ export const Route = createFileRoute("/devices")({
 const categories = ["All", "Lighting", "Climate", "Security", "Appliance", "Entertainment", "Utility"];
 
 function DevicesPage() {
-  const { devices, rooms, toggleDevice } = useSmartHome();
+  const { devices, rooms, toggleDevice, deleteDevice } = useSmartHome();
   const [query, setQuery] = useState("");
   const [room, setRoom] = useState("All");
   const [cat, setCat] = useState("All");
   const [comp, setComp] = useState("All");
   const [sort, setSort] = useState("name");
   const [addOpen, setAddOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editDevice, setEditDevice] = useState<Device | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Device | null>(null);
 
   const companies = useMemo(
     () => ["All", ...Array.from(new Set(devices.map((d) => d.company)))],
@@ -75,13 +84,44 @@ function DevicesPage() {
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filtered.map((d) => (
-          <DeviceCard key={d.id} device={d} on={d.status === "on"} onToggle={(v) => toggleDevice(d.id, v)} />
+          <DeviceCard
+            key={d.id}
+            device={d}
+            on={d.status === "on"}
+            onToggle={(v) => toggleDevice(d.id, v)}
+            onEdit={() => { setEditDevice(d); setEditOpen(true); }}
+            onDelete={() => setDeleteTarget(d)}
+          />
         ))}
       </div>
       {filtered.length === 0 && (
         <Card className="mt-4 p-10 text-center text-sm text-muted-foreground">No devices match your filters.</Card>
       )}
       <AddDeviceDialog open={addOpen} onOpenChange={setAddOpen} />
+      <EditDeviceDialog device={editDevice} open={editOpen} onOpenChange={setEditOpen} />
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Device?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deleteTarget?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (!deleteTarget) return;
+                deleteDevice(deleteTarget.id);
+                toast.success(`${deleteTarget.name} deleted`);
+                setDeleteTarget(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
@@ -103,7 +143,7 @@ function FilterSelect({ value, onChange, label, options }: { value: string; onCh
   );
 }
 
-function DeviceCard({ device, on, onToggle }: { device: Device; on: boolean; onToggle: (v: boolean) => void }) {
+function DeviceCard({ device, on, onToggle, onEdit, onDelete }: { device: Device; on: boolean; onToggle: (v: boolean) => void; onEdit: () => void; onDelete: () => void }) {
   const Icon = device.icon;
   return (
     <Card className="p-5">
@@ -118,9 +158,8 @@ function DeviceCard({ device, on, onToggle }: { device: Device; on: boolean; onT
               <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /></Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
-              <DropdownMenuItem><Settings2 className="mr-2 h-4 w-4" /> Settings</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" /> Delete</DropdownMenuItem>
+              <DropdownMenuItem onSelect={onEdit}><Pencil className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive" onSelect={onDelete}><Trash2 className="mr-2 h-4 w-4" /> Delete</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
