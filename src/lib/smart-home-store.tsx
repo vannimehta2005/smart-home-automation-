@@ -34,8 +34,11 @@ type Ctx = {
     room: string;
     power: number;
     status: "on" | "off";
+    highPower?: boolean;
     icon?: LucideIcon;
   }) => void;
+  updateDevice: (id: string, patch: Partial<Omit<Device, "id" | "icon">>) => void;
+  deleteDevice: (id: string) => void;
   toggleDevice: (id: string, on: boolean) => void;
   inviteMember: (m: { name: string; email: string; role: FamilyMember["role"] }) => void;
   theme: Theme;
