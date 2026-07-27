@@ -115,9 +115,13 @@ export function SmartHomeProvider({ children }: { children: ReactNode }) {
             room: d.room,
             power: d.power,
             status: d.status,
+            highPower: d.highPower,
             icon: d.icon ?? Lightbulb,
           },
         ]),
+      updateDevice: (id, patch) =>
+        setDevices((prev) => prev.map((d) => (d.id === id ? { ...d, ...patch } : d))),
+      deleteDevice: (id) => setDevices((prev) => prev.filter((d) => d.id !== id)),
       toggleDevice: (id, on) =>
         setDevices((prev) =>
           prev.map((d) => (d.id === id ? { ...d, status: on ? "on" : "off" } : d)),
