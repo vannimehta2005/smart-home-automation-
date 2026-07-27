@@ -81,13 +81,44 @@ function DevicesPage() {
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filtered.map((d) => (
-          <DeviceCard key={d.id} device={d} on={d.status === "on"} onToggle={(v) => toggleDevice(d.id, v)} />
+          <DeviceCard
+            key={d.id}
+            device={d}
+            on={d.status === "on"}
+            onToggle={(v) => toggleDevice(d.id, v)}
+            onEdit={() => { setEditDevice(d); setEditOpen(true); }}
+            onDelete={() => setDeleteTarget(d)}
+          />
         ))}
       </div>
       {filtered.length === 0 && (
         <Card className="mt-4 p-10 text-center text-sm text-muted-foreground">No devices match your filters.</Card>
       )}
       <AddDeviceDialog open={addOpen} onOpenChange={setAddOpen} />
+      <EditDeviceDialog device={editDevice} open={editOpen} onOpenChange={setEditOpen} />
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Device?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deleteTarget?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (!deleteTarget) return;
+                deleteDevice(deleteTarget.id);
+                toast.success(`${deleteTarget.name} deleted`);
+                setDeleteTarget(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
