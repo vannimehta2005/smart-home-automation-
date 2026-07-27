@@ -11,9 +11,15 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, Search, MoreVertical, Pencil, Trash2, Settings2 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Plus, Search, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useSmartHome } from "@/lib/smart-home-store";
 import { AddDeviceDialog } from "@/components/add-device-dialog";
+import { EditDeviceDialog } from "@/components/edit-device-dialog";
+import { toast } from "sonner";
 import type { Device } from "@/lib/smart-home-data";
 import { useMemo, useState } from "react";
 
