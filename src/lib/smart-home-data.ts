@@ -34,6 +34,7 @@ export interface Device {
   icon: LucideIcon;
   favorite?: boolean;
   highPower?: boolean;
+  masterDeviceId?: string;
 }
 
 export const rooms = [
