@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,83 +7,116 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSmartHome } from "@/lib/smart-home-store";
 import { toast } from "sonner";
-import type { DeviceCategory } from "@/lib/smart-home-data";
-
-const CATEGORIES: DeviceCategory[] = ["Lighting", "Climate", "Security", "Appliance", "Entertainment", "Utility"];
 
 export function AddDeviceDialog({ open, onOpenChange, defaultRoom }: { open: boolean; onOpenChange: (v: boolean) => void; defaultRoom?: string }) {
-  const { rooms, addDevice } = useSmartHome();
+  const { rooms, addDevice, companies, masterDevices } = useSmartHome();
+  const [companyId, setCompanyId] = useState("");
+  const [modelId, setModelId] = useState("");
+  const [companyQuery, setCompanyQuery] = useState("");
   const [name, setName] = useState("");
-  const [category, setCategory] = useState<DeviceCategory>("Lighting");
-  const [company, setCompany] = useState("");
-  const [model, setModel] = useState("");
   const [room, setRoom] = useState(defaultRoom ?? rooms[0]?.name ?? "");
-  const [power, setPower] = useState("10");
-  const [highPower, setHighPower] = useState(false);
   const [statusOn, setStatusOn] = useState(true);
 
+  const visibleCompanies = useMemo(
+    () => companies.filter((c) => c.company_name.toLowerCase().includes(companyQuery.trim().toLowerCase())),
+    [companies, companyQuery],
+  );
+  const models = useMemo(
+    () => masterDevices.filter((m) => m.company_id === companyId),
+    [masterDevices, companyId],
+  );
+  const selected = masterDevices.find((m) => m.device_id === modelId) ?? null;
+
+  const reset = () => {
+    setCompanyId(""); setModelId(""); setCompanyQuery(""); setName(""); setStatusOn(true);
+  };
+
   const submit = () => {
-    if (!name.trim() || !company.trim() || !model.trim() || !room) {
+    if (!companyId || !selected || !name.trim() || !room) {
       toast.error("Please fill in all required fields");
       return;
     }
-    const watts = Number(power) || 0;
-    addDevice({
-      name: name.trim(),
-      category,
-      company: company.trim(),
-      model: model.trim(),
-      room,
-      power: watts,
-      highPower,
-      status: statusOn ? "on" : "off",
-    });
-    toast.success(`${name} added to ${room}`);
-    setName(""); setCompany(""); setModel(""); setPower("10"); setHighPower(false); setStatusOn(true);
+    addDevice({ name: name.trim(), masterDeviceId: selected.device_id, room, status: statusOn ? "on" : "off" });
+    toast.success(`${name.trim()} added to ${room}`);
+    reset();
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v); }}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Add a new device</DialogTitle>
-          <DialogDescription>Connect a smart device to your home.</DialogDescription>
+          <DialogDescription>Choose a supported device from the catalog and add it to your home.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
-            <Label>Device name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Balcony Light" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Category</Label>
-            <Select value={category} onValueChange={(v) => setCategory(v as DeviceCategory)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Label>Company</Label>
+            <Select
+              value={companyId}
+              onValueChange={(v) => { setCompanyId(v); setModelId(""); }}
+            >
+              <SelectTrigger><SelectValue placeholder="Select company" /></SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                <div className="p-2">
+                  <Input
+                    value={companyQuery}
+                    onChange={(e) => setCompanyQuery(e.target.value)}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    placeholder="Search companies..."
+                    className="h-8"
+                  />
+                </div>
+                {visibleCompanies.map((c) => (
+                  <SelectItem key={c.company_id} value={c.company_id}>{c.company_name}</SelectItem>
+                ))}
+                {visibleCompanies.length === 0 && (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">No companies found</div>
+                )}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Device model</Label>
+            <Select value={modelId} onValueChange={setModelId} disabled={!companyId}>
+              <SelectTrigger><SelectValue placeholder={companyId ? "Select device" : "Select a company first"} /></SelectTrigger>
+              <SelectContent>
+                {models.map((m) => (
+                  <SelectItem key={m.device_id} value={m.device_id}>{m.model_name}</SelectItem>
+                ))}
+                {models.length === 0 && (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">No devices for this company</div>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Category</Label>
+            <Input value={selected?.category ?? ""} readOnly disabled placeholder="—" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Rated power (W)</Label>
+            <Input value={selected ? String(selected.rated_power_watts) : ""} readOnly disabled placeholder="—" />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>High power rated</Label>
+            <Input value={selected ? (selected.is_high_power_rated ? "Yes" : "No") : ""} readOnly disabled placeholder="—" />
+          </div>
+
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Custom device name</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Living Room AC" />
           </div>
           <div className="space-y-1.5">
             <Label>Assign room</Label>
             <Select value={room} onValueChange={setRoom}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Select room" /></SelectTrigger>
               <SelectContent>
                 {rooms.map((r) => <SelectItem key={r.id} value={r.name}>{r.name}</SelectItem>)}
               </SelectContent>
             </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Company</Label>
-            <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="e.g. Philips Hue" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Model</Label>
-            <Input value={model} onChange={(e) => setModel(e.target.value)} placeholder="e.g. A19" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Rated power (W)</Label>
-            <Input type="number" value={power} onChange={(e) => setPower(e.target.value)} />
           </div>
           <div className="flex items-center justify-between rounded-lg border border-border p-3">
             <div>
@@ -91,13 +124,6 @@ export function AddDeviceDialog({ open, onOpenChange, defaultRoom }: { open: boo
               <div className="text-xs text-muted-foreground">Turn ON after adding</div>
             </div>
             <Switch checked={statusOn} onCheckedChange={setStatusOn} />
-          </div>
-          <div className="flex items-center justify-between rounded-lg border border-border p-3 sm:col-span-2">
-            <div>
-              <div className="text-sm font-medium">High power device</div>
-              <div className="text-xs text-muted-foreground">Alert on unusual usage</div>
-            </div>
-            <Switch checked={highPower} onCheckedChange={setHighPower} />
           </div>
         </div>
         <DialogFooter>
