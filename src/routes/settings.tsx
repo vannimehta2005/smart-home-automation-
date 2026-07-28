@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { LogOut, Trash2, Sun, Moon, Monitor } from "lucide-react";
+import { LogOut, Trash2, Sun, Moon, Monitor, Database } from "lucide-react";
 import { useState } from "react";
 import { useSmartHome, type Theme } from "@/lib/smart-home-store";
 import { cn } from "@/lib/utils";
