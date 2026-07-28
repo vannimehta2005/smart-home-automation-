@@ -26,18 +26,21 @@ type Ctx = {
   addRoom: (r: Omit<Room, "id">) => void;
   updateRoom: (id: string, patch: Partial<Omit<Room, "id">>) => void;
   deleteRoom: (id: string) => void;
+  companies: Company[];
+  masterDevices: MasterDevice[];
+  addCompany: (name: string) => void;
+  updateCompany: (id: string, name: string) => void;
+  deleteCompany: (id: string) => void;
+  addMasterDevice: (d: Omit<MasterDevice, "device_id">) => void;
+  updateMasterDevice: (id: string, patch: Partial<Omit<MasterDevice, "device_id">>) => void;
+  deleteMasterDevice: (id: string) => void;
   addDevice: (d: {
     name: string;
-    category: Device["category"];
-    company: string;
-    model: string;
+    masterDeviceId: string;
     room: string;
-    power: number;
     status: "on" | "off";
-    highPower?: boolean;
-    icon?: LucideIcon;
   }) => void;
-  updateDevice: (id: string, patch: Partial<Omit<Device, "id" | "icon">>) => void;
+  updateDevice: (id: string, patch: { name?: string; room?: string; status?: "on" | "off" }) => void;
   deleteDevice: (id: string) => void;
   toggleDevice: (id: string, on: boolean) => void;
   inviteMember: (m: { name: string; email: string; role: FamilyMember["role"] }) => void;
