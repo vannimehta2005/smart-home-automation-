@@ -4,8 +4,41 @@ import {
   rooms as seedRooms,
   family as seedFamily,
   type Device,
+  type DeviceCategory,
 } from "./smart-home-data";
-import { Lightbulb, type LucideIcon } from "lucide-react";
+import {
+  masterCompanies,
+  masterDevices as seedMasterDevices,
+  type Company,
+  type MasterDevice,
+} from "./master-catalog";
+import {
+  Lightbulb,
+  AirVent,
+  Lock,
+  Plug,
+  Tv,
+  Plug2,
+  type LucideIcon,
+} from "lucide-react";
+
+function iconForCategory(category: DeviceCategory): LucideIcon {
+  switch (category) {
+    case "Lighting":
+      return Lightbulb;
+    case "Climate":
+      return AirVent;
+    case "Security":
+      return Lock;
+    case "Entertainment":
+      return Tv;
+    case "Appliance":
+      return Plug2;
+    default:
+      return Plug;
+  }
+}
+
 
 export type Room = { id: string; name: string; icon: string; description?: string };
 export type FamilyMember = {
