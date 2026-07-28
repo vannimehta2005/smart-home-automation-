@@ -97,6 +97,8 @@ export function SmartHomeProvider({ children }: { children: ReactNode }) {
   const [rooms, setRooms] = useState<Room[]>(seedRooms);
   const [devices, setDevices] = useState<Device[]>(seedDevices);
   const [family, setFamily] = useState<FamilyMember[]>(seedFamily as FamilyMember[]);
+  const [companies, setCompanies] = useState<Company[]>(masterCompanies);
+  const [catalog, setCatalog] = useState<MasterDevice[]>(seedMasterDevices);
   const [theme, setThemeState] = useState<Theme>("light");
 
   useEffect(() => {
