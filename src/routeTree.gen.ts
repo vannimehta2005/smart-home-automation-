@@ -13,6 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as RoutinesRouteImport } from './routes/routines'
 import { Route as RoomsRouteImport } from './routes/rooms'
+import { Route as MasterCatalogRouteImport } from './routes/master-catalog'
 import { Route as FamilyRouteImport } from './routes/family'
 import { Route as EnergyRouteImport } from './routes/energy'
 import { Route as DevicesRouteImport } from './routes/devices'
@@ -45,6 +46,11 @@ const RoutinesRoute = RoutinesRouteImport.update({
 const RoomsRoute = RoomsRouteImport.update({
   id: '/rooms',
   path: '/rooms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MasterCatalogRoute = MasterCatalogRouteImport.update({
+  id: '/master-catalog',
+  path: '/master-catalog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FamilyRoute = FamilyRouteImport.update({
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/devices': typeof DevicesRoute
   '/energy': typeof EnergyRoute
   '/family': typeof FamilyRoute
+  '/master-catalog': typeof MasterCatalogRoute
   '/rooms': typeof RoomsRouteWithChildren
   '/routines': typeof RoutinesRoute
   '/security': typeof SecurityRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/devices': typeof DevicesRoute
   '/energy': typeof EnergyRoute
   '/family': typeof FamilyRoute
+  '/master-catalog': typeof MasterCatalogRoute
   '/routines': typeof RoutinesRoute
   '/security': typeof SecurityRoute
   '/settings': typeof SettingsRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   '/devices': typeof DevicesRoute
   '/energy': typeof EnergyRoute
   '/family': typeof FamilyRoute
+  '/master-catalog': typeof MasterCatalogRoute
   '/rooms': typeof RoomsRouteWithChildren
   '/routines': typeof RoutinesRoute
   '/security': typeof SecurityRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
     | '/devices'
     | '/energy'
     | '/family'
+    | '/master-catalog'
     | '/rooms'
     | '/routines'
     | '/security'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/devices'
     | '/energy'
     | '/family'
+    | '/master-catalog'
     | '/routines'
     | '/security'
     | '/settings'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/devices'
     | '/energy'
     | '/family'
+    | '/master-catalog'
     | '/rooms'
     | '/routines'
     | '/security'
@@ -231,6 +243,7 @@ export interface RootRouteChildren {
   DevicesRoute: typeof DevicesRoute
   EnergyRoute: typeof EnergyRoute
   FamilyRoute: typeof FamilyRoute
+  MasterCatalogRoute: typeof MasterCatalogRoute
   RoomsRoute: typeof RoomsRouteWithChildren
   RoutinesRoute: typeof RoutinesRoute
   SecurityRoute: typeof SecurityRoute
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/rooms'
       fullPath: '/rooms'
       preLoaderRoute: typeof RoomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/master-catalog': {
+      id: '/master-catalog'
+      path: '/master-catalog'
+      fullPath: '/master-catalog'
+      preLoaderRoute: typeof MasterCatalogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/family': {
@@ -398,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   DevicesRoute: DevicesRoute,
   EnergyRoute: EnergyRoute,
   FamilyRoute: FamilyRoute,
+  MasterCatalogRoute: MasterCatalogRoute,
   RoomsRoute: RoomsRouteWithChildren,
   RoutinesRoute: RoutinesRoute,
   SecurityRoute: SecurityRoute,

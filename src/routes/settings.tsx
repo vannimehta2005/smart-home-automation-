@@ -67,6 +67,13 @@ function SettingsPage() {
             <ThemePicker />
           </Section>
 
+          <Section title="Master Catalog" description="Administrator-only companies and supported device models">
+            <Link to="/master-catalog" className="block">
+              <Button variant="outline" className="w-full gap-2"><Database className="h-4 w-4" /> Open Master Catalog</Button>
+            </Link>
+          </Section>
+
+
           <Section title="Away mode" description="Simulate presence, tighten security">
             <ToggleRow label="Enable away mode" description="Turns off non-essential devices" value={awayMode} onChange={setAwayMode} />
           </Section>
