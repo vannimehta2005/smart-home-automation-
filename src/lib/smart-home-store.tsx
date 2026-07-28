@@ -199,7 +199,7 @@ export function SmartHomeProvider({ children }: { children: ReactNode }) {
       theme,
       setTheme,
     }),
-    [rooms, devices, family, theme],
+    [rooms, devices, family, theme, companies, catalog],
   );
 
   return <SmartHomeCtx.Provider value={value}>{children}</SmartHomeCtx.Provider>;
