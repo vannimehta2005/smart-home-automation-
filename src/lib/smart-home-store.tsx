@@ -106,22 +106,42 @@ export function SmartHomeProvider({ children }: { children: ReactNode }) {
           return prev.filter((r) => r.id !== id);
         });
       },
-      addDevice: (d) =>
+      companies,
+      masterDevices: catalog,
+      addCompany: (name) =>
+        setCompanies((prev) => [...prev, { company_id: `c${Date.now()}`, company_name: name }]),
+      updateCompany: (id, name) =>
+        setCompanies((prev) => prev.map((c) => (c.company_id === id ? { ...c, company_name: name } : c))),
+      deleteCompany: (id) => {
+        setCompanies((prev) => prev.filter((c) => c.company_id !== id));
+        setCatalog((prev) => prev.filter((m) => m.company_id !== id));
+      },
+      addMasterDevice: (d) =>
+        setCatalog((prev) => [...prev, { device_id: `m${Date.now()}`, ...d }]),
+      updateMasterDevice: (id, patch) =>
+        setCatalog((prev) => prev.map((m) => (m.device_id === id ? { ...m, ...patch } : m))),
+      deleteMasterDevice: (id) => setCatalog((prev) => prev.filter((m) => m.device_id !== id)),
+      addDevice: (d) => {
+        const master = catalog.find((m) => m.device_id === d.masterDeviceId);
+        if (!master) return;
+        const company = companies.find((c) => c.company_id === master.company_id);
         setDevices((prev) => [
           ...prev,
           {
             id: `d${Date.now()}`,
             name: d.name,
-            category: d.category,
-            company: d.company,
-            model: d.model,
+            masterDeviceId: master.device_id,
+            category: master.category,
+            company: company?.company_name ?? "",
+            model: master.model_name,
             room: d.room,
-            power: d.power,
+            power: master.rated_power_watts,
             status: d.status,
-            highPower: d.highPower,
-            icon: d.icon ?? Lightbulb,
+            highPower: master.is_high_power_rated,
+            icon: iconForCategory(master.category),
           },
-        ]),
+        ]);
+      },
       updateDevice: (id, patch) =>
         setDevices((prev) => prev.map((d) => (d.id === id ? { ...d, ...patch } : d))),
       deleteDevice: (id) => setDevices((prev) => prev.filter((d) => d.id !== id)),
