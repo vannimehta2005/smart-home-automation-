@@ -23,8 +23,9 @@ function reloadOnce() {
 export function installChunkReload() {
   if (typeof window === "undefined") return;
 
-  // Successful navigation means the current build is loading fine.
-  sessionStorage.removeItem(GUARD_KEY);
+  // Clear the guard only after the page has stayed healthy for a while, so a
+  // reload that immediately fails again cannot start a reload loop.
+  const guardTimer = window.setTimeout(() => sessionStorage.removeItem(GUARD_KEY), 10000);
 
   const onRejection = (event: PromiseRejectionEvent) => {
     if (isChunkLoadError(event.reason)) reloadOnce();
