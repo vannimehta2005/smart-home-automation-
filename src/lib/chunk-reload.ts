@@ -40,6 +40,7 @@ export function installChunkReload() {
   window.addEventListener("vite:preloadError", onPreloadError);
 
   return () => {
+    window.clearTimeout(guardTimer);
     window.removeEventListener("unhandledrejection", onRejection);
     window.removeEventListener("error", onError);
     window.removeEventListener("vite:preloadError", onPreloadError);
