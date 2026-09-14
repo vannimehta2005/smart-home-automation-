@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { installChunkReload } from "../lib/chunk-reload";
 import { SmartHomeProvider } from "../lib/smart-home-store";
 import { Toaster } from "../components/ui/sonner";
 
@@ -118,6 +119,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => installChunkReload(), []);
 
   return (
     <QueryClientProvider client={queryClient}>
